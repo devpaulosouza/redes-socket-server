@@ -10,21 +10,32 @@
 
 import socket
 
-
-
-class Jogo:
+class Jogo(Tabuleiro):
     def __init__(self):
-        pass
+        super().__init__(tabuleiro)
+        self.id = 0
+
 
 class Jogador:
     def __init__(self):
-        pass
+        self.id = 0
+        self.nome = 0
+        
 
 class Tabuleiro:
     def __init__(self):
-        pass
+        self.tamanho_linhas = 10
+        self.tamanho_colunas = 10
+        self.tabuleiro = 0
 
-
+    def Tabuleiro(self):
+        tabuleiro = []
+        for linha in self.tamanho_linhas:
+            board = []
+            for coluna in self.tamanho_colunas:
+                board.append(linha)
+            tabuleiro.append(board)
+        return tabuleiro
 
 # Endereco do servidor
 HOST = ''
