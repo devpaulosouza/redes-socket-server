@@ -10,8 +10,27 @@
 
 import socket
 
-HOST = '127.0.0.1'
-PORT = 8484
+
+
+class Jogo:
+    def __init__(self):
+        pass
+
+class Jogador:
+    def __init__(self):
+        pass
+
+class Tabuleiro:
+    def __init__(self):
+        pass
+
+
+
+# Endereco do servidor
+HOST = ''
+# Porta do servidor
+PORT = input("Insira a porta: ")
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen(1)
