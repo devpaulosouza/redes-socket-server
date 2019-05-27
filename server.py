@@ -8,7 +8,11 @@
 # author: Paulo Souza                                                                                #
 ######################################################################################################
 
+
+
 import socket
+
+
 
 
 ######################################################################################################
@@ -20,7 +24,6 @@ class Jogo:
     def __init__(self,player1,player2):
         self.player1 = player1
         self.player2 = player2
-
 
 
 ######################################################################################################
@@ -81,7 +84,7 @@ if __name__ == "__main__":
 
     while True:
         conn, addr = s.accept()
-        print ('consagrado no ip ' + addr[0] + ' se conectou.' )
+        print ('Jogador' + addr[0] + ' se conectou.' )
 
         close = False
 
