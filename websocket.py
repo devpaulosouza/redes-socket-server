@@ -41,6 +41,8 @@ async def counter(websocket, path):
             if data['action'] == 'join':
                 print('joining game...')
                 await start_game(websocket)
+            if data['action'] == 'sendBoard':
+                print('board: ' + str(data['board']))
             else:
                 logging.error(
                     "unsupported event: {}", data)
