@@ -15,6 +15,15 @@ async def notify_users():
         message = users_event()
         await asyncio.wait([user.send(message) for user in USERS])
 
+async def start_game(user):
+    print(len(USERS))
+    print(len(USERS) )
+
+    if len(USERS) % 2 == 0:
+        await asyncio.wait([u.send(json.dumps({ 'action': 'started' })) for u in USERS])
+    else:
+        await asyncio.wait([user.send(json.dumps({ 'action': 'waitingOtherPlayer' }))])
+
 async def register(websocket):
     USERS.add(websocket)
     await notify_users()
@@ -30,9 +39,9 @@ async def counter(websocket, path):
         async for message in websocket:
             data = json.loads(message)
             print(data)
-            if data['action'] == 'start':
-                print('starting game...')
-                await asyncio.wait([websocket.send(json.dumps({ 'action': 'started' }))])
+            if data['action'] == 'join':
+                print('joining game...')
+                await start_game(websocket)
             else:
                 logging.error(
                     "unsupported event: {}", data)
