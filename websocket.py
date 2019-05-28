@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import websockets
+import uuid
 
 logging.basicConfig()
 
@@ -16,13 +17,10 @@ async def notify_users():
         await asyncio.wait([user.send(message) for user in USERS])
 
 async def start_game(user):
-    print(len(USERS))
-    print(len(USERS) )
-
     if len(USERS) % 2 == 0:
-        await asyncio.wait([u.send(json.dumps({ 'action': 'started' })) for u in USERS])
+        await asyncio.wait([u.send(json.dumps({ 'action': 'started', 'uuid': str(u.uuid) })) for u in USERS])
     else:
-        await asyncio.wait([user.send(json.dumps({ 'action': 'waitingOtherPlayer' }))])
+        await asyncio.wait([user.send(json.dumps({ 'action': 'waitingOtherPlayer', 'uuid': str(user.uuid) }))])
 
 async def register(websocket):
     USERS.add(websocket)
@@ -34,6 +32,7 @@ async def unregister(websocket):
 
 async def counter(websocket, path):
     # register(websocket) sends user_event() to 
+    websocket.uuid = uuid.uuid4()
     await register(websocket)
     try:
         async for message in websocket:
