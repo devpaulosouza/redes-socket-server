@@ -30,9 +30,19 @@ class Jogo:
     
     def __init__(self,player1,player2):
         self.player1 = player1
-        self.player2 = player2
+        self.player2 = player
+        self.shipsPlayer1 = []
+        self.shipsPlayer2 = []
+        self.attackedBlocksPlayer1 = []
+        self.attackedBlocksPlayer2 = []
 
 
+    def VerificaResultado():
+        pass
+
+
+    
+    
     def VerificaPosicao(self,player,coodX,coodY):
 
         if player.tabuleiro[coodX][coodY] != 0 or player.tabuleiro[coodX][coodY] != 9:
@@ -42,9 +52,28 @@ class Jogo:
         else:
             return False
 
+    
+    
     def StartGame(self):
+        # Se acertou mando mensagem e continua a jogada
+        # caso errou manda mensagem, colore posicao e muda de jogador
         
-        await websockets.send("Jogo Iniciado")
+        
+        #await websockets.send("Jogo Iniciado")
+
+
+
+
+
+
+        # Condicao
+        """if inimigo == 30:
+            response = "Que pena, você perdeu!\n" 
+            websockets.send(str.encode(response))
+        else:
+            response = "Parabéns! Você ganhou!\n" 
+            websockets.send(str.encode(response))"""
+        
         pass
 
 
@@ -54,16 +83,17 @@ class Jogo:
 
 class Jogador:
     
-    def __init__(self, id, nome,board):
+    def __init__(self, id, nome,board,webSocket):
         self.id = id
         self.name = nome
         self.board = board
+        self.socket = webSocket
         self.life = 0 # vai ate 30
 
 
     def Tabuleiro(self,coodX,coodY):
         # Atualizar tabuleiro
-        self.board[coodX][coodY] = 9
+        self.board[coodX][coodY] = -9
 
 ######################################################################################################
 #                                            Class Tabuleiro                                         #
@@ -116,6 +146,12 @@ async def counter(websocket, path):
 
     # register(websocket) sends user_event() to 
     await register(websocket)
+    
+    print("numero de usuarios:" + str(USERS))
+    
+    if len(USERS) == 2:
+        print("Podemos Comecar!")
+    
     try:
         async for message in websocket:
             
@@ -131,9 +167,12 @@ async def counter(websocket, path):
             elif data['action'] == 'sendBoard':
                 print('init board with name ' + str(nome))
 
-                player = Jogador(0,nome,data['board'])
+                player = Jogador(0,nome,data['board'],websocket)
+
+                player.Tabuleiro(9,9)
+                player.Tabuleiro(9,8)
                 #quadro = Quadro(data['board'])
-                print(player.tabuleiro)
+                print(player.board)
             else:
                 logging.error(
                     "unsupported event: {}", data)
