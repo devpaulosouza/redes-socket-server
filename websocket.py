@@ -22,8 +22,7 @@ import websockets
 #                                               Class Jogo                                           #
 ######################################################################################################
 # Matriz possue posicoes zeradas, ou seja campo vazio,
-# valor 10 para as posicoes dos navios
-# valor 5 para as posicoes que foram acertadas
+# valor 9 para as posicoes que foram acertadas
 #
 ######################################################################################################
 
@@ -34,6 +33,23 @@ class Jogo:
         self.player2 = player2
 
 
+    def VerificaPosicao(self,player,coodX,coodY):
+
+        if player.tabuleiro[coodX][coodY] != 0 or player.tabuleiro[coodX][coodY] != 9:
+            # atualizar tabuleiro
+            player.Tabuleiro(coodX,coodY)
+            return True
+        else:
+            return False
+
+
+
+
+    def StartGame(self):
+
+
+
+
 ######################################################################################################
 #                                             Class Jogador                                          #
 ######################################################################################################
@@ -41,10 +57,15 @@ class Jogo:
 class Jogador:
     
     def __init__(self, id, nome,board):
-        Quadro.__init__(board)
         self.id = id
-        self.nome = nome
+        self.name = nome
+        self.board = board
+        self.life = 0 # vai ate 30
 
+
+    def Tabuleiro(self,coodX,coodY):
+        # Atualizar tabuleiro
+        self.board[coodX][coodY] = 9
 
 ######################################################################################################
 #                                            Class Tabuleiro                                         #
@@ -57,27 +78,18 @@ class Quadro:
         self.tamanho_colunas = 10
         self.board = board
         self.tabuleiro = self.Tabuleiro()
-        self.tabuleiroPosicionado = self.PosicaoDosNavios()
 
     # montando o tabuleiro 10x10 vazio
     def Tabuleiro(self):
         tabuleiro = []
-        for linha in self.tamanho_linhas:
+        for linha in range(self.tamanho_linhas):
             board = []
-            for coluna in self.tamanho_colunas:
-                board.append(linha)
+            for coluna in range(self.tamanho_colunas):
+                board.append(0)
             tabuleiro.append(board)
         return tabuleiro
-    
-    def PosicaoDosNavios(self):
-        # ler json e preencher as posicoes
-        # atribuindo valor 10 a posicao preenchidas
-        with open(filename) as dadosAtaque:
-            dataClient = json.load(dadosAtaque)
-            self.Tabuleiro()[dataClient['x']][dataClient['y']] = 10
-        
-        pass
 
+######################################################################################################
 
 logging.basicConfig()
 
@@ -122,6 +134,8 @@ async def counter(websocket, path):
                 print('init board with name ' + str(nome))
 
                 player = Jogador(0,nome,data['board'])
+                #quadro = Quadro(data['board'])
+                print(player.tabuleiro)
             else:
                 logging.error(
                     "unsupported event: {}", data)
