@@ -28,10 +28,10 @@ class Jogo:
 #                                             Class Jogador                                          #
 ######################################################################################################
 
-class Jogador(Tabuleiro):
+class Jogador:
     
     def __init__(self, id, nome):
-        super().__init__(tabuleiro)
+        Quadro.__init__(tabuleiro)
         self.id = id
         self.nome = nome
 
@@ -40,7 +40,7 @@ class Jogador(Tabuleiro):
 #                                            Class Tabuleiro                                         #
 ######################################################################################################
 
-class Tabuleiro:
+class Quadro:
 
     def __init__(self):
         self.tamanho_linhas = 10
@@ -70,10 +70,9 @@ class ConvertJson:
 if __name__ == "__main__":
     
     # Endereco do servidor
-    HOST = ''
+    HOST = 'localhost'
     # Porta do servidor
-    PORT = input("Insira a porta: ")
-
+    PORT = 8484
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST, PORT))
     s.listen(1)
