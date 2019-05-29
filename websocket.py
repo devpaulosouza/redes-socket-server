@@ -42,12 +42,10 @@ class Jogo:
         else:
             return False
 
-
-
-
     def StartGame(self):
-
-
+        
+        await websockets.send("Jogo Iniciado")
+        pass
 
 
 ######################################################################################################
