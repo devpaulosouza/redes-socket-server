@@ -37,7 +37,7 @@ class Jogo:
         self.attackedBlocksPlayer2 = []
 
 
-    def VerificaResultado(self):
+    def verificaResultado(self):
         if len(reduce(lambda x,y : x+y, self.shipsPlayer1)) == len(self.attackedBlocksPlayer1):
             return self.player2 , self.player1
         if len(reduce(lambda x,y : x+y, self.shipsPlayer2)) == len(self.attackedBlocksPlayer2):
@@ -46,27 +46,23 @@ class Jogo:
         return None , None
     
     
-    def VerificaPosicao(self,player,coodX,coodY):
+    def verificaPosicao(self,player,coodX,coodY):
 
-        if player.tabuleiro[coodX][coodY] != 0 or player.tabuleiro[coodX][coodY] != 9:
+        if player.board[coodX][coodY] != 0 or player.board[coodX][coodY] != '*':
             # atualizar tabuleiro
-            player.Tabuleiro(coodX,coodY)
+            player.tabuleiro(coodX,coodY)
             return True
         else:
             return False
 
     
     
-    def StartGame(self):
+    def startGame(self):
         # Se acertou mando mensagem e continua a jogada
         # caso errou manda mensagem, colore posicao e muda de jogador
         
         
         #await websockets.send("Jogo Iniciado")
-
-
-
-
 
 
         # Condicao
@@ -94,32 +90,15 @@ class Jogador:
         self.life = 0 # vai ate 30
 
 
-    def Tabuleiro(self,coodX,coodY):
+    def tabuleiro(self,coodX,coodY):
         # Atualizar tabuleiro
-        self.board[coodX][coodY] = -9
-
-######################################################################################################
-#                                            Class Tabuleiro                                         #
-######################################################################################################
-
-class Quadro:
-
-    def __init__(self,board):
-        self.tamanho_linhas = 10
-        self.tamanho_colunas = 10
-        self.board = board
-        self.tabuleiro = self.Tabuleiro()
-
-    # montando o tabuleiro 10x10 vazio
-    def Tabuleiro(self):
-        tabuleiro = []
-        for linha in range(self.tamanho_linhas):
-            board = []
-            for coluna in range(self.tamanho_colunas):
-                board.append(0)
-            tabuleiro.append(board)
-        return tabuleiro
-
+        
+        if self.board[coodX][coodY] == 0:
+            self.board[coodX][coodY] = "X"
+        elif (self.board[coodX][coodY] != 0 and not self.board[coodX][coodY] == "X") or (self.board[coodX][coodY] != 0 and not self.board[coodX][coodY] == "O"):
+            self.board[coodX][coodY] = "O"
+        else:
+            print("Essa posicao ja foi marcada")
 ######################################################################################################
 
 logging.basicConfig()
@@ -142,7 +121,6 @@ async def unregister(websocket):
     USERS.remove(websocket)
     await notify_users()
 
-
 async def counter(websocket, path):
 
     global nome
@@ -153,7 +131,10 @@ async def counter(websocket, path):
     print("numero de usuarios:" + str(USERS))
     
     if len(USERS) == 2:
+        # Iniciar o jogo com player1 e player 2
+        # game = Jogo(player1,player2)
         print("Podemos Comecar!")
+
     
     try:
         async for message in websocket:
@@ -172,8 +153,8 @@ async def counter(websocket, path):
 
                 player = Jogador(0,nome,data['board'],websocket)
 
-                player.Tabuleiro(9,9)
-                player.Tabuleiro(9,8)
+                player.tabuleiro(9,9)
+                player.tabuleiro(9,8)
                 #quadro = Quadro(data['board'])
                 print(player.board)
             else:
