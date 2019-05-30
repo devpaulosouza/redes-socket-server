@@ -22,7 +22,7 @@ import websockets
 #                                               Class Jogo                                           #
 ######################################################################################################
 # Matriz possue posicoes zeradas, ou seja campo vazio,
-# valor 9 para as posicoes que foram acertadas
+# valor O para as posicoes que foram acertadas e X para as erradas
 #
 ######################################################################################################
 
@@ -30,33 +30,33 @@ class Jogo:
     
     def __init__(self,player1,player2):
         self.player1 = player1
-        self.player2 = player
+        self.player2 = player2
         self.shipsPlayer1 = []
         self.shipsPlayer2 = []
         self.attackedBlocksPlayer1 = []
         self.attackedBlocksPlayer2 = []
 
 
-    def verificaResultado(self):
-        if len(reduce(lambda x,y : x+y, self.shipsPlayer1)) == len(self.attackedBlocksPlayer1):
-            return self.player2 , self.player1
-        if len(reduce(lambda x,y : x+y, self.shipsPlayer2)) == len(self.attackedBlocksPlayer2):
-            return self.player1 , self.player2
+    def checkResult(self,player):
 
-        return None , None
+        if player.life == 30: player.socket.send("Parabens, você venceu :D")
+        else: player.socket.send("Você perdeu :(")
     
     
-    def verificaPosicao(self,player,coodX,coodY):
+    def checkPosition(self,player,coodX,coodY):
 
-        if player.board[coodX][coodY] != 0 or player.board[coodX][coodY] != '*':
-            # atualizar tabuleiro
-            player.tabuleiro(coodX,coodY)
-            return True
+        if player.board[coodX][coodY] == 0:
+            return "Errou"
+        elif player.board[coodX][coodY] == 'X' or player.board[coodX][coodY] == 'O':
+            # Nao pode jogar nessas coordenadas
+            return "Invalido"
         else:
-            return False
+            # Acertou o navio
+            return "Acertou"
 
-    
-    
+    def upDatePosition(self,player,coodX,coodY):
+        player.tabuleiro(coodX,coodY)
+
     def startGame(self):
         # Se acertou mando mensagem e continua a jogada
         # caso errou manda mensagem, colore posicao e muda de jogador
@@ -64,8 +64,8 @@ class Jogo:
         
         #await websockets.send("Jogo Iniciado")
 
-
-        # Condicao
+        self.player1.socket.send("Joga")
+        # Condicao, quem acertar todos os navios primeiro vence
         """if inimigo == 30:
             response = "Que pena, você perdeu!\n" 
             websockets.send(str.encode(response))
@@ -89,16 +89,18 @@ class Jogador:
         self.socket = webSocket
         self.life = 0 # vai ate 30
 
-
+    # Funcao para atualizar o Tabuleiro do player
+    # param coodX   Recebe valor inteiro da coordenada de X
+    # param coodY'  Recebe valor inteiro da coordenada de X
     def tabuleiro(self,coodX,coodY):
-        # Atualizar tabuleiro
-        
+
         if self.board[coodX][coodY] == 0:
             self.board[coodX][coodY] = "X"
         elif (self.board[coodX][coodY] != 0 and not self.board[coodX][coodY] == "X") or (self.board[coodX][coodY] != 0 and not self.board[coodX][coodY] == "O"):
             self.board[coodX][coodY] = "O"
         else:
             print("Essa posicao ja foi marcada")
+
 ######################################################################################################
 
 logging.basicConfig()
@@ -134,6 +136,9 @@ async def counter(websocket, path):
         # Iniciar o jogo com player1 e player 2
         # game = Jogo(player1,player2)
         print("Podemos Comecar!")
+    else:
+        # congleado conexao
+        pass
 
     
     try:
@@ -160,10 +165,8 @@ async def counter(websocket, path):
             else:
                 logging.error(
                     "unsupported event: {}", data)
-    
     finally:
         await unregister(websocket)
-
 
 
 asyncio.get_event_loop().run_until_complete(
