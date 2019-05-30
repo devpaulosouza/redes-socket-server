@@ -42,7 +42,10 @@ class Jogo:
         if player.life == 30: player.socket.send("Parabens, você venceu :D")
         else: player.socket.send("Você perdeu :(")
     
-    
+    # Funcao para atualizar o tabuleiro do player
+    # param player
+    # param coodX
+    # param coodY 
     def checkPosition(self,player,coodX,coodY):
 
         if player.board[coodX][coodY] == 0:
@@ -54,6 +57,10 @@ class Jogo:
             # Acertou o navio
             return "Acertou"
 
+    # Funcao para atualizar o tabuleiro do player
+    # param player
+    # param coodX
+    # param coodY
     def upDatePosition(self,player,coodX,coodY):
         player.tabuleiro(coodX,coodY)
 
