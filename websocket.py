@@ -156,6 +156,9 @@ async def counter(websocket, path):
     websocket.uuid = uuid.uuid4()
 
     await register(websocket)
+
+    turn = 0
+    total_pieces = 0
     
     try:
         async for message in websocket:
@@ -183,12 +186,42 @@ async def counter(websocket, path):
             elif data['action'] == 'sendBoard':
                 getPlayer(websocket.uuid).board = data['board']
 
+                # calcula o somatorio do board em totalPieces
+                total_pieces = sum(map(sum, data['board']))
+
+
                 if USERS[0].board != None and USERS[1].board != None:
-                    await send_message(USERS[0], 'turn', { 'turn': str(USERS[0].uuid) })
-                    await send_message(USERS[1], 'turn', { 'turn': str(USERS[0].uuid) })
+                    await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
+                    await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
 
                 print(str(getPlayer(websocket.uuid).username))
-                pass
+
+            elif data['action'] == 'attack':
+                # x,y uuid
+                x = data['x']
+                y = data['y']
+
+                playerAttack = getPlayer(data['uuid'])
+
+                print("playerattack : " + playerAttack)
+
+                newValue = -playerAttack.board[x][y]
+
+                playerAttack.board[x][y] = newValue
+
+                await send_message(USERS[0], 'onAttack', { 'uuid': data['uuid'], 'x': x, 'y': y, 'value': newValue })
+                await send_message(USERS[1], 'onAttack', { 'uuid': data['uuid'], 'x': x, 'y': y, 'value': newValue })
+
+                finished = (total_pieces + sum(map(sum, playerAttack.board))) == 0
+
+
+                # muda de turno
+                turn = (turn + 1) % 2 
+                await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
+                await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
+
+                print(finished)
+
             else:
                 logging.error(
                     "unsupported event: {}", data)
