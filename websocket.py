@@ -146,27 +146,24 @@ def getPlayer(uuid):
     
     #return filter(lambda id : id == uuid, USERS)
     for item in USERS:
-        if uuid == item.uuid: return item
+        if uuid == item.uuid or uuid == str(item.uuid): return item
 
 
 players = 0
-
 
 async def counter(websocket, path):
     websocket.uuid = uuid.uuid4()
 
     await register(websocket)
 
-    turn = 0
     total_pieces = 0
+    global turn
+    turn = 0
     
     try:
         async for message in websocket:
             
             data = json.loads(message)
-            
-            print(data)
-            print('teste')
             
             if data['action'] == 'join':
                 if len(USERS) == 1:
@@ -191,19 +188,16 @@ async def counter(websocket, path):
 
 
                 if USERS[0].board != None and USERS[1].board != None:
+                    print(turn)
                     await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
                     await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
 
-                print(str(getPlayer(websocket.uuid).username))
-
             elif data['action'] == 'attack':
                 # x,y uuid
-                x = data['x']
-                y = data['y']
+                x = int(data['x'])
+                y = int(data['y'])
 
                 playerAttack = getPlayer(data['uuid'])
-
-                print("playerattack : " + playerAttack)
 
                 newValue = -playerAttack.board[x][y]
 
@@ -214,14 +208,14 @@ async def counter(websocket, path):
 
                 finished = (total_pieces + sum(map(sum, playerAttack.board))) == 0
 
-
-                # muda de turno
-                turn = (turn + 1) % 2 
-                await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
-                await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
-
+                print(playerAttack.board)
                 print(finished)
 
+                # muda de turno
+                turn = (turn + 1) % 2
+                
+                await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
+                await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
             else:
                 logging.error(
                     "unsupported event: {}", data)
