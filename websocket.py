@@ -142,6 +142,13 @@ async def send_message(websocket, action, data = None):
     await asyncio.wait([websocket.send(json.dumps({ 'action': action, 'data': data }))])
 
 
+def getPlayer(uuid):
+    
+    #return filter(lambda id : id == uuid, USERS)
+    for item in USERS:
+        if uuid == item.uuid: return item
+
+
 players = 0
 
 
@@ -168,6 +175,7 @@ async def counter(websocket, path):
                     await send_message(USERS[1], 'started', { 'username': USERS[0].username })
 
             elif data['action'] == 'sendBoard':
+                print(str(getPlayer(websocket.uuid).username))
                 pass
             else:
                 logging.error(
