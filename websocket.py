@@ -163,18 +163,30 @@ async def counter(websocket, path):
             data = json.loads(message)
             
             print(data)
+            print('teste')
             
             if data['action'] == 'join':
                 if len(USERS) == 1:
                     USERS[0].username = data['username']
+                    print('um jogador pronto. Aguardando o outro...')
                     await send_message(USERS[0], 'waitingOtherPlayer')
                     
                 elif len(USERS) == 2:
+                    print('os dois estão prontos')
                     USERS[1].username = data['username']
-                    await send_message(USERS[0], 'started', { 'username': USERS[1].username })
-                    await send_message(USERS[1], 'started', { 'username': USERS[0].username })
+                    USERS[0].board = None
+                    USERS[1].board = None
+                    # inicia o jogo para ambos jogadores
+                    await send_message(USERS[0], 'started', { 'otherPlayer': { 'username': USERS[1].username, 'uuid': str(USERS[1].uuid)}, 'uuid': str(USERS[0].uuid) })
+                    await send_message(USERS[1], 'started', { 'otherPlayer': { 'username': USERS[0].username, 'uuid': str(USERS[0].uuid)}, 'uuid': str(USERS[1].uuid) })
 
             elif data['action'] == 'sendBoard':
+                getPlayer(websocket.uuid).board = data['board']
+
+                if USERS[0].board != None and USERS[1].board != None:
+                    await send_message(USERS[0], 'turn', { 'turn': str(USERS[0].uuid) })
+                    await send_message(USERS[1], 'turn', { 'turn': str(USERS[0].uuid) })
+
                 print(str(getPlayer(websocket.uuid).username))
                 pass
             else:
