@@ -208,9 +208,6 @@ async def counter(websocket, path):
 
                 finished = (total_pieces + sum(map(sum, playerAttack.board))) == 0
 
-                print(playerAttack.board)
-                print(finished)
-
                 # muda de turno
                 turn = (turn + 1) % 2
                 
