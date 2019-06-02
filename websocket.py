@@ -202,17 +202,27 @@ async def counter(websocket, path):
                 newValue = -playerAttack.board[x][y]
 
                 playerAttack.board[x][y] = newValue
+                
+                if newValue == 0:
+                    newValue = -999
 
                 await send_message(USERS[0], 'onAttack', { 'uuid': data['uuid'], 'x': x, 'y': y, 'value': newValue })
                 await send_message(USERS[1], 'onAttack', { 'uuid': data['uuid'], 'x': x, 'y': y, 'value': newValue })
 
                 finished = (total_pieces + sum(map(sum, playerAttack.board))) == 0
 
-                # muda de turno
-                turn = (turn + 1) % 2
-                
-                await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
-                await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
+                if not finished:
+                    if newValue == -999:
+                        # muda de turno
+                        turn = (turn + 1) % 2
+                        
+                    await send_message(USERS[0], 'turn', { 'turn': str(USERS[turn].uuid) })
+                    await send_message(USERS[1], 'turn', { 'turn': str(USERS[turn].uuid) })
+                else:
+                    await send_message(USERS[0], 'finished', { 'winner': str(USERS[turn].uuid) })
+                    await send_message(USERS[1], 'finished', { 'winner': str(USERS[turn].uuid) })
+                    USERS.clear()
+
             else:
                 logging.error(
                     "unsupported event: {}", data)
